@@ -24,14 +24,14 @@ func (ts Tickets) GetTickets() Tickets {
 	return ts
 }
 
-func (ts Tickets) GetTicketsByDestination(destinationCountry string) Tickets {
+func (ts Tickets) GetTicketsByDestination(destinationCountry string) int {
 	var ticketsRequested = Tickets{}
 	for _, ticket := range ts {
 		if ticket.DestinationCountry == destinationCountry {
 			ticketsRequested = append(ticketsRequested, ticket)
 		}
 	}
-	return ticketsRequested
+	return len(ticketsRequested)
 }
 
 func (ts Tickets) GetCountByPeriod(time string) (int, error) {
@@ -74,6 +74,15 @@ func (ts Tickets) GetCountByPeriod(time string) (int, error) {
 		return 0, errors.New("invalid time")
 	}
 
+}
+
+func (ts Tickets) GetAverage(destination string) (float64, error) {
+	ticketsObtained := ts.GetTicketsByDestination(destination)
+	totalOfTickets := float64(len(ts))
+	if totalOfTickets == 0 {
+		return 0.0, errors.New("len of tickets equal zero. can not divide it")
+	}
+	return float64(ticketsObtained) / totalOfTickets, nil
 }
 
 func NewTickets(tickets ...Ticket) Tickets {
@@ -145,7 +154,7 @@ func GetTotalTickets(destination string) (int, error) {
 		return 0, err
 	}
 	ticketsFounded := tickets.GetTicketsByDestination(destination)
-	return len(ticketsFounded), nil
+	return ticketsFounded, nil
 }
 
 // GetNumberOfTicketsByPeriod GetMornings ejemplo 2
