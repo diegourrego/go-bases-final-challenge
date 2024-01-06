@@ -98,8 +98,7 @@ func NewTickets(tickets ...Ticket) Tickets {
 func GetFileData() (Tickets, error) {
 	file, err := os.Open("./tickets.csv")
 	if err != nil {
-		fmt.Println("Error opening file: ", err)
-		return Tickets{}, err
+		return nil, err
 	}
 	defer func() {
 		err := file.Close()
@@ -112,8 +111,7 @@ func GetFileData() (Tickets, error) {
 	reader := csv.NewReader(file)
 	list, err := reader.ReadAll()
 	if err != nil {
-		fmt.Println("Error Reading the file:", err)
-		return Tickets{}, err
+		return nil, err
 	}
 
 	tickets := NewTickets()
@@ -123,14 +121,12 @@ func GetFileData() (Tickets, error) {
 		// Conversiones necesarias para crear Ticket
 		id, err := strconv.Atoi(ticketData[0])
 		if err != nil {
-			fmt.Println("Error convirtiendo id a entero", err)
-			return Tickets{}, err
+			return nil, err
 		}
 
 		price, err := strconv.Atoi(ticketData[5])
 		if err != nil {
-			fmt.Println("Error convirtiendo price a float", err)
-			return Tickets{}, err
+			return nil, err
 		}
 
 		tickets = append(tickets, Ticket{
