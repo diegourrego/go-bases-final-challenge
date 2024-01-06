@@ -2,10 +2,11 @@ package tickets
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
-	"time"
+	"strings"
 )
 
 type Ticket struct {
@@ -13,7 +14,7 @@ type Ticket struct {
 	Name               string
 	Email              string
 	DestinationCountry string
-	FlightTime         time.Time
+	FlightTime         string
 	Price              int
 }
 
@@ -33,9 +34,47 @@ func (ts Tickets) GetTicketsByDestination(destinationCountry string) Tickets {
 	return ticketsRequested
 }
 
-//func (ts Tickets) GetCountByPeriod(time string) (int, error) {
-//
-//}
+func (ts Tickets) GetCountByPeriod(time string) (int, error) {
+
+	var earlyMorningSlice []int
+	var morningSlice []int
+	var afternoonSlice []int
+	var nightSlice []int
+
+	for _, ticket := range ts {
+		hourArray := strings.Split(ticket.FlightTime, ":")
+		hourInt, err := strconv.Atoi(hourArray[0])
+		if err != nil {
+			fmt.Println("Error en GetCountByPeriod", err)
+			return 0, err
+		}
+
+		switch {
+		case hourInt >= 0 && hourInt <= 6:
+			earlyMorningSlice = append(earlyMorningSlice, hourInt)
+		case hourInt >= 7 && hourInt <= 12:
+			morningSlice = append(morningSlice, hourInt)
+		case hourInt >= 13 && hourInt <= 19:
+			afternoonSlice = append(afternoonSlice, hourInt)
+		case hourInt >= 20 && hourInt <= 23:
+			nightSlice = append(nightSlice, hourInt)
+		}
+	}
+
+	switch time {
+	case "early morning":
+		return len(earlyMorningSlice), nil
+	case "morning":
+		return len(morningSlice), nil
+	case "afternoon":
+		return len(afternoonSlice), nil
+	case "night":
+		return len(nightSlice), nil
+	default:
+		return 0, errors.New("invalid time")
+	}
+
+}
 
 func NewTickets(tickets ...Ticket) Tickets {
 	var ts Tickets
@@ -45,10 +84,6 @@ func NewTickets(tickets ...Ticket) Tickets {
 	}
 
 	return ts
-}
-
-func (ts Tickets) GetTotal() int {
-	return len(ts)
 }
 
 func GetFileData() (Tickets, error) {
@@ -83,12 +118,6 @@ func GetFileData() (Tickets, error) {
 			return Tickets{}, err
 		}
 
-		hour, err := time.Parse("15:04", ticketData[4])
-		if err != nil {
-			fmt.Println("Error convirtiendo hour a time", err)
-			return Tickets{}, err
-		}
-
 		price, err := strconv.Atoi(ticketData[5])
 		if err != nil {
 			fmt.Println("Error convirtiendo price a float", err)
@@ -100,7 +129,7 @@ func GetFileData() (Tickets, error) {
 			Name:               ticketData[1],
 			Email:              ticketData[2],
 			DestinationCountry: ticketData[3],
-			FlightTime:         hour,
+			FlightTime:         ticketData[4],
 			Price:              price,
 		})
 
@@ -119,12 +148,35 @@ func GetTotalTickets(destination string) (int, error) {
 	return len(ticketsFounded), nil
 }
 
-// GetMornings ejemplo 2
-func GetMornings(time string) (int, error) {
-	return 0, nil
+// GetNumberOfTicketsByPeriod GetMornings ejemplo 2
+func GetNumberOfTicketsByPeriod(time string) (int, error) {
+	tickets, err := GetFileData()
+	if err != nil {
+		fmt.Println("ERROR in GetFileData", err)
+		return 0, err
+	}
+	numberTickets, err := tickets.GetCountByPeriod(time)
+	if err != nil {
+		fmt.Println("ERROR en GetMornings", err)
+		return 0, err
+	}
+	return numberTickets, nil
 }
 
-// ejemplo 3
-func AverageDestination(destination string, total int) (int, error) {
-	return 0, nil
+// AverageDestination ejemplo 3
+func AverageDestination(destination string) (float64, error) {
+	totalTickets, err := GetFileData()
+	if err != nil {
+		fmt.Println("ERROR in GetFileData", err)
+		return 0, err
+	}
+
+	ticketsByDestination, err := GetTotalTickets(destination)
+	if err != nil {
+		fmt.Printf("Error en GetTotalTickets")
+		return 0, err
+	}
+	total := float64(len(totalTickets))
+	return float64(ticketsByDestination) / total, nil
+
 }
