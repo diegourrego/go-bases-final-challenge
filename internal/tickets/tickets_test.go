@@ -109,3 +109,37 @@ func TestTickets_GetCountByPeriod(t *testing.T) {
 
 	})
 }
+
+func TestAverageDestination(t *testing.T) {
+	currentDir, err := os.Getwd()
+	require.Nil(t, err)
+
+	index := strings.Index(currentDir, "desafio-go-bases")
+	if index == -1 {
+		// La subcadena no se encontró, manejar este caso según tus necesidades
+		fmt.Println("Subcadena no encontrada en la ruta.")
+		return
+	}
+	err = os.Chdir(currentDir[:index+len("desafio-go-bases")])
+	require.Nil(t, err)
+
+	defer func() {
+		err := os.Chdir(currentDir)
+		require.Nil(t, err)
+	}()
+
+	t.Run("success - case01: should finds the correct average", func(t *testing.T) {
+		averageObtained, err := tickets.AverageDestination("Brazil")
+		expectedAverage := 0.045
+		require.Equal(t, expectedAverage, averageObtained)
+		require.Nil(t, err)
+	})
+
+	t.Run("success - case02: should returns zero if it not find tickets with the specified destination", func(t *testing.T) {
+		expectedAverage := 0.0
+		averageObtained, err := tickets.AverageDestination("Antarctic")
+		require.Equal(t, expectedAverage, averageObtained)
+		require.Nil(t, err)
+	})
+
+}

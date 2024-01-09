@@ -42,11 +42,11 @@ func main() {
 	fmt.Printf("El número de tiquetes en %s es: %d\n", period, numTicketsNight)
 
 	//// Requerimiento 3:
-	//aDestination := "Finland"
-	//average, err := tickets.AverageDestination(aDestination)
-	//if err != nil {
-	//	fmt.Println("error AverageDestination", err)
-	//	return
-	//}
-	//fmt.Printf("The average for %s is: %f", aDestination, average)
+	averageDestination := "Finland"
+	average, err := tickets.AverageDestination(averageDestination)
+	if err != nil {
+		fmt.Println("error AverageDestination", err)
+		return
+	}
+	fmt.Printf("The average for %s is: %f", averageDestination, average)
 }

@@ -129,20 +129,15 @@ func GetNumberOfTicketsByPeriod(period string) (int, error) {
 
 }
 
-//// AverageDestination ejemplo 3
-//func AverageDestination(destination string) (float64, error) {
-//	totalTickets, err := GetFileData()
-//	if err != nil {
-//		fmt.Println("ERROR in GetFileData", err)
-//		return 0, err
-//	}
-//
-//	ticketsByDestination, err := GetTotalTickets(destination)
-//	if err != nil {
-//		fmt.Printf("Error en GetTotalTickets")
-//		return 0, err
-//	}
-//	total := float64(len(totalTickets))
-//	return float64(ticketsByDestination) / total, nil
-//
-//}
+// // AverageDestination ejemplo 3
+func AverageDestination(destination string) (float64, error) {
+	ticketsByDestination, err := GetTotalTickets(destination)
+	if err != nil {
+		return 0, err
+	}
+	tickets := Tickets{}
+	tickets.LoadFile()
+	total := float64(len(tickets.GetTickets()))
+	return float64(ticketsByDestination) / total, nil
+
+}
