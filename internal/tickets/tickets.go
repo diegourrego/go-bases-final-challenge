@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type Ticket struct {
@@ -93,11 +95,39 @@ func GetTotalTickets(destination string) (int, error) {
 	return len(totalTickets), nil
 }
 
-//GetNumberOfTicketsByPeriod GetMornings ejemplo 2
-//func GetNumberOfTicketsByPeriod(period string) (int, error) {
-//
-//	return 0, nil
-//}
+// GetNumberOfTicketsByPeriod GetMornings ejemplo 2
+func GetNumberOfTicketsByPeriod(period string) (int, error) {
+	tickets := Tickets{}
+	tickets.LoadFile()
+
+	periodFlights := make(map[string]int)
+
+	for _, ticket := range tickets.GetTickets() {
+		hourArray := strings.Split(ticket.FlightTime, ":")
+		hourInt, err := strconv.Atoi(hourArray[0])
+		if err != nil {
+			return 0, err
+		}
+
+		switch {
+		case hourInt >= 0 && hourInt <= 6:
+			periodFlights["early morning"]++
+		case hourInt >= 7 && hourInt <= 12:
+			periodFlights["morning"]++
+		case hourInt >= 13 && hourInt <= 19:
+			periodFlights["afternoon"]++
+		case hourInt >= 20 && hourInt <= 23:
+			periodFlights["night"]++
+		}
+	}
+
+	count, found := periodFlights[period]
+	if !found {
+		return 0, errors.New("invalid period")
+	}
+	return count, nil
+
+}
 
 //// AverageDestination ejemplo 3
 //func AverageDestination(destination string) (float64, error) {
